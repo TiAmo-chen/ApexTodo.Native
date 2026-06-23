@@ -9,7 +9,8 @@ ApexTodo.Native 是 ApexTodo 的 C# 原生重写版本，使用 WPF 桌面框架
 ## 构建和运行
 
 ```bash
-dotnet build                                    # 编译整个解决方案
+dotnet build                                    # 编译整个解决方案（Linux 上需设置 EnableWindowsTargeting=true）
+dotnet build src/ApexTodo.Core                  # 跨平台编译（可在 Linux CI 上运行）
 dotnet run --project src/ApexTodo.Windows       # 运行 WPF 桌面应用
 dotnet publish src/ApexTodo.Windows -c Release  # 发布
 ```
