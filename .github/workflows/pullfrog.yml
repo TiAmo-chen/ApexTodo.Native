@@ -30,11 +30,19 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Set bot git identity
+        run: |
+          git config user.name "pullfrog[bot]"
+          git config user.email "pullfrog[bot]@users.noreply.github.com"
+
       - name: Run agent
         uses: pullfrog/pullfrog@v0
         with:
           # 自动触发时使用 Issue 的标题 + 正文作为 Prompt
-          prompt: ${{ github.event.issue.title }} ${{ github.event.issue.body }}
+          prompt: |
+            ${{ github.event.issue.title }} ${{ github.event.issue.body }}
+
+            重要：在你的 PR 描述中必须包含 "Fixes #${{ github.event.issue.number }}" 以便合并后自动关闭 Issue。
         env:
           # ---------- DeepSeek 配置 (唯一必需) ----------
           ANTHROPIC_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
