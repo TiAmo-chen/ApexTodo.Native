@@ -1,56 +1,63 @@
-# PULLFROG ACTION — DO NOT EDIT EXCEPT WHERE INDICATED
+# PULLFROG ACTION — 已按需修改 (支持 DeepSeek + 自动触发)
 name: Pullfrog
-run-name: ${{ inputs.name || github.workflow }}
 on:
+  # 自动触发：当有新 Issue 创建时运行
+  issues:
+    types: [opened]
+  # 你也可以保留手动触发，方便调试
   workflow_dispatch:
     inputs:
       prompt:
         type: string
-        description: Agent prompt
+        description: Agent prompt (手动触发时使用)
       name:
         type: string
         description: Run name
 
+# 权限提升：需要写入代码和 PR 的权限
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
+  id-token: write
+  issues: read
 
 jobs:
   pullfrog:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
+
       - name: Run agent
         uses: pullfrog/pullfrog@v0
         with:
-          prompt: ${{ inputs.prompt }}
+          # 自动触发时使用 Issue 的标题 + 正文作为 Prompt
+          prompt: ${{ github.event.issue.title }} ${{ github.event.issue.body }}
         env:
-          # add at least one provider API key
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GOOGLE_GENERATIVE_AI_API_KEY:
-            ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          # ---------- DeepSeek 配置 (唯一必需) ----------
+          ANTHROPIC_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
+
+          # ---------- 其余可选提供商的密钥 (保留但未启用) ----------
+          # CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          # GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          # MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          # OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          # OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           
-          # for Amazon Bedrock (https://docs.pullfrog.com/bedrock)
+          # for Amazon Bedrock (注释掉)
           # AWS_BEARER_TOKEN_BEDROCK: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
           # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           # AWS_REGION: us-east-1
           # BEDROCK_MODEL_ID: <bedrock-model-id>
           
-          # for Google Vertex AI (https://docs.pullfrog.com/vertex)
+          # for Google Vertex AI (注释掉)
           # VERTEX_SERVICE_ACCOUNT_JSON: ${{ secrets.VERTEX_SERVICE_ACCOUNT_JSON }}
           # GOOGLE_CLOUD_PROJECT: my-project
           # VERTEX_LOCATION: global
