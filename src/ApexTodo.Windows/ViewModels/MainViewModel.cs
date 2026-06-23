@@ -43,100 +43,162 @@ public partial class MainViewModel : ObservableObject
 
     public MainViewModel()
     {
-        var dbPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "ApexTodo", "todo.db");
-
-        _db = new DatabaseContext(dbPath);
-        _todoRepo = new TodoRepository(_db);
-        _settingsService = new SettingsService(_db);
-        _settings = _settingsService.Load();
-
-        // Ensure settings points to our db
-        Settings.TodoDbPath = dbPath;
-        _settingsService.Save(Settings);
-
-        _syncService = new SyncService(dbPath, () => Settings);
-        _syncService.OnSyncCompleted += result =>
+        try
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            var dbPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "ApexTodo", "todo.db");
+
+            _db = new DatabaseContext(dbPath);
+            _todoRepo = new TodoRepository(_db);
+            _settingsService = new SettingsService(_db);
+            _settings = _settingsService.Load();
+
+            Settings.TodoDbPath = dbPath;
+            _settingsService.Save(Settings);
+
+            _syncService = new SyncService(dbPath, () => Settings);
+            _syncService.OnSyncCompleted += result =>
             {
-                SyncMessage = result.Message;
-                if (result.Success) RefreshTasks();
-                ShowToastMessage(result.Message);
-            });
-        };
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    SyncMessage = result.Message;
+                    if (result.Success) RefreshTasks();
+                    ShowToastMessage(result.Message);
+                });
+            };
 
-        RefreshTasks();
+            RefreshTasks();
 
-        if (Settings.WebDav.Enabled)
-            _syncService.StartAutoSync(Settings.WebDav.IntervalMinutes);
+            if (Settings.WebDav.Enabled)
+                _syncService.StartAutoSync(Settings.WebDav.IntervalMinutes);
+        }
+        catch (Exception ex)
+        {
+            _settings = new AppSettings();
+            _db = new DatabaseContext(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "ApexTodo", "todo.db"));
+            _todoRepo = new TodoRepository(_db);
+            _settingsService = new SettingsService(_db);
+            _syncService = new SyncService("", () => Settings);
+            MessageBox.Show($"初始化出错: {ex.Message}", "ApexTodo", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     [RelayCommand]
     private void AddTask()
     {
-        var text = InputText.Trim();
-        if (string.IsNullOrEmpty(text)) return;
+        try
+        {
+            var text = InputText.Trim();
+            if (string.IsNullOrEmpty(text)) return;
 
-        _todoRepo.Add(text);
-        InputText = string.Empty;
-        RefreshTasks();
-        ShowToastMessage("任务已添加");
+            _todoRepo.Add(text);
+            InputText = string.Empty;
+            RefreshTasks();
+            ShowToastMessage("任务已添加");
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"添加失败: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private void ToggleTask(TodoItem? item)
     {
         if (item == null) return;
-        _todoRepo.Toggle(item.Id);
-        RefreshTasks();
+        try
+        {
+            _todoRepo.Toggle(item.Id);
+            RefreshTasks();
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"操作失败: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private void DeleteTask(TodoItem? item)
     {
         if (item == null) return;
-        _todoRepo.Delete(item.Id);
-        RefreshTasks();
-        ShowToastMessage("任务已删除");
+        try
+        {
+            _todoRepo.Delete(item.Id);
+            RefreshTasks();
+            ShowToastMessage("任务已删除");
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"删除失败: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private void UpdateTaskText(TodoItem? item)
     {
         if (item == null) return;
-        _todoRepo.UpdateText(item.Id, item.Text);
+        try
+        {
+            _todoRepo.UpdateText(item.Id, item.Text);
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"更新失败: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private void CaptureFromClipboard()
     {
-        var text = Clipboard.GetText().Trim();
-        if (string.IsNullOrEmpty(text)) return;
+        try
+        {
+            var text = Clipboard.GetText().Trim();
+            if (string.IsNullOrEmpty(text)) return;
 
-        _todoRepo.Add(text);
-        RefreshTasks();
-        ShowToastMessage($"已捕获: {text}");
+            _todoRepo.Add(text);
+            RefreshTasks();
+            ShowToastMessage($"已捕获: {text}");
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"捕获失败: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private async Task RunSyncAsync()
     {
-        await _syncService.SyncAsync();
+        try
+        {
+            await _syncService.SyncAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"同步失败: {ex.Message}");
+        }
     }
 
     [RelayCommand]
     private void SaveSettings()
     {
-        _settingsService.Save(Settings);
-        if (Settings.WebDav.Enabled)
-            _syncService.StartAutoSync(Settings.WebDav.IntervalMinutes);
-        else
-            _syncService.StopAutoSync();
+        try
+        {
+            _settingsService.Save(Settings);
+            if (Settings.WebDav.Enabled)
+                _syncService.StartAutoSync(Settings.WebDav.IntervalMinutes);
+            else
+                _syncService.StopAutoSync();
 
-        ShowSettings = false;
-        ShowToastMessage("设置已保存");
+            ShowSettings = false;
+            ShowToastMessage("设置已保存");
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"保存失败: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -147,20 +209,34 @@ public partial class MainViewModel : ObservableObject
 
     public void ReorderTasks(List<string> orderedIds)
     {
-        _todoRepo.Reorder(orderedIds);
-        RefreshTasks();
+        try
+        {
+            _todoRepo.Reorder(orderedIds);
+            RefreshTasks();
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"排序失败: {ex.Message}");
+        }
     }
 
     public void RefreshTasks()
     {
-        var all = _todoRepo.GetAll();
-        var open = all.Where(t => !t.Completed).ToList();
-        var completed = all.Where(t => t.Completed).ToList();
+        try
+        {
+            var all = _todoRepo.GetAll();
+            var open = all.Where(t => !t.Completed).ToList();
+            var completed = all.Where(t => t.Completed).ToList();
 
-        OpenTasks.Clear();
-        CompletedTasks.Clear();
-        foreach (var t in open) OpenTasks.Add(t);
-        foreach (var t in completed) CompletedTasks.Add(t);
+            OpenTasks.Clear();
+            CompletedTasks.Clear();
+            foreach (var t in open) OpenTasks.Add(t);
+            foreach (var t in completed) CompletedTasks.Add(t);
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"刷新失败: {ex.Message}");
+        }
     }
 
     private void ShowToastMessage(string message)

@@ -18,8 +18,9 @@ public class TodoRepository
         using var conn = _db.CreateConnection();
         conn.Open();
         return conn.Query("""
-            SELECT id, text, completed, created_at AS CreatedAt,
-                   completed_at AS CompletedAt, sort_order AS SortOrder
+            SELECT id AS Id, text AS Text, completed AS Completed,
+                   created_at AS CreatedAt, completed_at AS CompletedAt,
+                   sort_order AS SortOrder
             FROM todos
             ORDER BY completed ASC, sort_order ASC, created_at DESC
             """).Select(r => new TodoItem

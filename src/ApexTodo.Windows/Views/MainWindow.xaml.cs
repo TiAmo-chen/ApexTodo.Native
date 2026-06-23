@@ -22,7 +22,7 @@ public partial class MainWindow : Window
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
 
-        // Restore window position
+        // Restore window state
         var s = _vm.Settings;
         Left = s.WindowLeft;
         Top = s.WindowTop;
@@ -30,6 +30,7 @@ public partial class MainWindow : Window
         Height = s.WindowHeight;
         Topmost = s.AlwaysOnTop;
         Opacity = s.WindowOpacity;
+        UpdatePinButton();
     }
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -37,8 +38,9 @@ public partial class MainWindow : Window
         _hotkey.Register(this);
         _hotkey.OnCaptureTriggered += async () =>
         {
-            await Task.Delay(100); // Wait for clipboard
-            _vm.CaptureFromClipboardCommand.Execute(null);
+            await Task.Delay(100);
+            Application.Current.Dispatcher.Invoke(() =>
+                _vm.CaptureFromClipboardCommand.Execute(null));
         };
         _hotkey.OnToggleMouseThrough += () =>
         {
@@ -49,11 +51,12 @@ public partial class MainWindow : Window
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         _hotkey.Unregister();
-        // Save window position
         _vm.Settings.WindowLeft = Left;
         _vm.Settings.WindowTop = Top;
         _vm.Settings.WindowWidth = Width;
         _vm.Settings.WindowHeight = Height;
+        _vm.Settings.AlwaysOnTop = Topmost;
+        _vm.Settings.WindowOpacity = Opacity;
         _vm.SaveSettingsCommand.Execute(null);
     }
 
@@ -75,6 +78,40 @@ public partial class MainWindow : Window
     {
         Topmost = !Topmost;
         _vm.Settings.AlwaysOnTop = Topmost;
+        UpdatePinButton();
+    }
+
+    private void UpdatePinButton()
+    {
+        if (Topmost)
+        {
+            PinBtn.Content = "■"; // ■ filled square
+            PinBtn.Foreground = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(0x89, 0xB4, 0xFA)); // blue
+            PinBtn.ToolTip = "已置顶（点击取消）";
+        }
+        else
+        {
+            PinBtn.Content = "□"; // □ empty square
+            PinBtn.Foreground = new System.Windows.Media.SolidColorBrush(
+                System.Windows.Media.Color.FromRgb(0x6C, 0x70, 0x86)); // gray
+            PinBtn.ToolTip = "点击置顶";
+        }
+    }
+
+    private void AlwaysOnTop_Changed(object sender, RoutedEventArgs e)
+    {
+        if (sender is CheckBox cb)
+        {
+            Topmost = cb.IsChecked == true;
+            _vm.Settings.AlwaysOnTop = Topmost;
+            UpdatePinButton();
+        }
+    }
+
+    private void OpacitySlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        Opacity = e.NewValue;
     }
 
     private void InputBox_KeyDown(object sender, KeyEventArgs e)
@@ -102,7 +139,6 @@ public partial class MainWindow : Window
     private void CancelSettings_Click(object sender, RoutedEventArgs e)
         => _vm.ShowSettings = false;
 
-    // Simple drag-and-drop reorder
     private void OpenTasks_DragOver(object sender, DragEventArgs e)
     {
         e.Effects = DragDropEffects.Move;
@@ -110,7 +146,7 @@ public partial class MainWindow : Window
 
     private void OpenTasks_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetData(typeof(TodoItem)) is TodoItem dropped)
+        if (e.Data.GetData(typeof(TodoItem)) is TodoItem)
         {
             var orderedIds = _vm.OpenTasks.Select(t => t.Id).ToList();
             _vm.ReorderTasks(orderedIds);
