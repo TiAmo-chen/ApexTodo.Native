@@ -210,7 +210,7 @@
 
                             <TextBlock Text="透明度" Foreground="#6C7086" FontSize="12" Margin="0,8,0,4"/>
                             <Slider Minimum="0.35" Maximum="1.0" Value="{Binding Settings.WindowOpacity}"
-                                    TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                    SmallChange="0.01" LargeChange="0.05"
                                     ValueChanged="OpacitySlider_Changed"/>
 
                             <Separator Background="#45475A" Margin="0,12,0,12"/>
