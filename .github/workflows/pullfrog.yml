@@ -1,4 +1,4 @@
-# PULLFROG ACTION — 已按需修改 (支持 DeepSeek + 自动触发)
+# PULLFROG ACTION — 已按需修改 (支持小米 MiMo + 自动触发)
 name: Pullfrog
 on:
   # 自动触发：当有新 Issue 创建时运行
@@ -44,29 +44,7 @@ jobs:
 
             重要：在你的 PR 描述中必须包含 "Fixes #${{ github.event.issue.number }}" 以便合并后自动关闭 Issue。
         env:
-          # ---------- DeepSeek 配置 (唯一必需) ----------
-          ANTHROPIC_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
-
-          # ---------- 其余可选提供商的密钥 (保留但未启用) ----------
-          # CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
-          # GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          # XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
-          # MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
-          # OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          # OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          
-          # for Amazon Bedrock (注释掉)
-          # AWS_BEARER_TOKEN_BEDROCK: ${{ secrets.AWS_BEARER_TOKEN_BEDROCK }}
-          # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # AWS_REGION: us-east-1
-          # BEDROCK_MODEL_ID: <bedrock-model-id>
-          
-          # for Google Vertex AI (注释掉)
-          # VERTEX_SERVICE_ACCOUNT_JSON: ${{ secrets.VERTEX_SERVICE_ACCOUNT_JSON }}
-          # GOOGLE_CLOUD_PROJECT: my-project
-          # VERTEX_LOCATION: global
-          # VERTEX_MODEL_ID: <vertex-model-id>
+          # ---------- 小米 MiMo 配置 ----------
+          ANTHROPIC_API_KEY: ${{ secrets.MIMO_API_KEY }}
+          ANTHROPIC_BASE_URL: "https://token-plan-cn.xiaomimimo.com/anthropic"
+          ANTHROPIC_MODEL: "mimo-v2.5-pro"
