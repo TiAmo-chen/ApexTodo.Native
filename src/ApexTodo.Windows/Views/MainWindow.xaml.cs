@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,6 +15,17 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 {
     private readonly MainViewModel _vm;
     private readonly HotkeyService _hotkey;
+    private bool _isPassthrough;
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll")]
+    private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+    private const int GWL_EXSTYLE = -20;
+    private const int WS_EX_TRANSPARENT = 0x00000020;
+    private const int WS_EX_LAYERED = 0x00080000;
 
     public MainWindow()
     {
@@ -48,7 +60,8 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         };
         _hotkey.OnToggleMouseThrough += () =>
         {
-            _vm.Settings.DesktopMouseThrough = !_vm.Settings.DesktopMouseThrough;
+            Application.Current.Dispatcher.Invoke(() =>
+                SetPassthrough(!_isPassthrough));
         };
     }
 
@@ -62,6 +75,37 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         _vm.Settings.AlwaysOnTop = Topmost;
         _vm.Settings.WindowOpacity = Opacity;
         _vm.SaveSettingsCommand.Execute(null);
+    }
+
+    private void PassthroughButton_Click(object sender, RoutedEventArgs e)
+    {
+        SetPassthrough(!_isPassthrough);
+    }
+
+    private void SetPassthrough(bool enabled)
+    {
+        _isPassthrough = enabled;
+
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        var exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+
+        if (enabled)
+        {
+            // 开启穿透：置顶 + 鼠标穿透
+            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_TRANSPARENT | WS_EX_LAYERED);
+            Topmost = true;
+            _vm.Settings.AlwaysOnTop = true;
+            UpdatePinButton();
+            PassthroughBtn.Appearance = ControlAppearance.Primary;
+            PassthroughBtn.ToolTip = "按 Ctrl+Shift+Z 取消穿透";
+        }
+        else
+        {
+            // 取消穿透
+            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_TRANSPARENT);
+            PassthroughBtn.Appearance = ControlAppearance.Transparent;
+            PassthroughBtn.ToolTip = "鼠标穿透";
+        }
     }
 
     private void PinButton_Click(object sender, RoutedEventArgs e)

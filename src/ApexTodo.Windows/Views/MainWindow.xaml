@@ -45,6 +45,9 @@
                 <TextBlock Text="ApexTodo" VerticalAlignment="Center" Margin="12,0,0,0"
                            FontSize="12" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <ui:Button x:Name="PassthroughBtn" Appearance="Transparent"
+                               Icon="{ui:SymbolIcon Eye24}" Width="46" Height="32"
+                               Click="PassthroughButton_Click" ToolTip="鼠标穿透"/>
                     <ui:Button x:Name="PinBtn" Appearance="Transparent"
                                Icon="{ui:SymbolIcon Pin24}" Width="46" Height="32"
                                Click="PinButton_Click" ToolTip="点击置顶"/>
