@@ -4,10 +4,12 @@ using System.Windows.Input;
 using ApexTodo.Core.Models;
 using ApexTodo.Windows.Services;
 using ApexTodo.Windows.ViewModels;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
 
 namespace ApexTodo.Windows.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 {
     private readonly MainViewModel _vm;
     private readonly HotkeyService _hotkey;
@@ -60,20 +62,6 @@ public partial class MainWindow : Window
         _vm.SaveSettingsCommand.Execute(null);
     }
 
-    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount == 2)
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-        else
-            DragMove();
-    }
-
-    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
-        => WindowState = WindowState.Minimized;
-
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
-        => Close();
-
     private void PinButton_Click(object sender, RoutedEventArgs e)
     {
         Topmost = !Topmost;
@@ -85,16 +73,14 @@ public partial class MainWindow : Window
     {
         if (Topmost)
         {
-            PinBtn.Content = "■"; // ■ filled square
-            PinBtn.Foreground = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(0x89, 0xB4, 0xFA)); // blue
+            PinBtn.Icon = new SymbolIcon(SymbolRegular.Pin24);
+            PinBtn.Appearance = ControlAppearance.Primary;
             PinBtn.ToolTip = "已置顶（点击取消）";
         }
         else
         {
-            PinBtn.Content = "□"; // □ empty square
-            PinBtn.Foreground = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(0x6C, 0x70, 0x86)); // gray
+            PinBtn.Icon = new SymbolIcon(SymbolRegular.PinOff24);
+            PinBtn.Appearance = ControlAppearance.Transparent;
             PinBtn.ToolTip = "点击置顶";
         }
     }
@@ -125,7 +111,7 @@ public partial class MainWindow : Window
 
     private void TaskText_LostFocus(object sender, RoutedEventArgs e)
     {
-        if (sender is TextBox tb && tb.Tag is string id)
+        if (sender is System.Windows.Controls.TextBox tb && tb.Tag is string id)
         {
             var item = _vm.OpenTasks.FirstOrDefault(t => t.Id == id);
             if (item != null)
