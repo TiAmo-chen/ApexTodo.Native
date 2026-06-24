@@ -109,7 +109,9 @@
                 <ListView Grid.Row="1" ItemsSource="{Binding OpenTasks}"
                           Background="Transparent" BorderThickness="0"
                           SelectionMode="Single" x:Name="OpenTasksList"
-                          AllowDrop="True" Drop="OpenTasks_Drop" DragOver="OpenTasks_DragOver">
+                          AllowDrop="True" Drop="OpenTasks_Drop" DragOver="OpenTasks_DragOver"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.CanContentScroll="False">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0,2">
@@ -177,7 +179,9 @@
 
                 <ListView Grid.Row="3" ItemsSource="{Binding CompletedTasks}"
                           Background="Transparent" BorderThickness="0"
-                          Visibility="{Binding ShowCompleted, Converter={StaticResource BoolToVis}}">
+                          Visibility="{Binding ShowCompleted, Converter={StaticResource BoolToVis}}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.CanContentScroll="False">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0,2" Opacity="0.6">
