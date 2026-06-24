@@ -97,130 +97,100 @@
             </StackPanel>
 
             <!-- Task list -->
-            <Grid Grid.Row="3" Margin="12,4">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="3" Margin="12,4"
+                          VerticalScrollBarVisibility="Auto"
+                          CanContentScroll="False">
+                <StackPanel>
+                    <TextBlock Text="待办" FontSize="12" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" Margin="0,0,0,4"/>
+                    <ItemsControl ItemsSource="{Binding OpenTasks}" x:Name="OpenTasksList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding Completed}"
+                                              Command="{Binding DataContext.ToggleTaskCommand,
+                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                              CommandParameter="{Binding}"
+                                              VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="Transparent" BorderThickness="0"
+                                             VerticalContentAlignment="Center"
+                                             LostFocus="TaskText_LostFocus"
+                                             Tag="{Binding Id}"/>
+                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="4,0"
+                                               Cursor="Hand" MouseLeftButtonDown="DueText_Click"
+                                               Tag="{Binding}"
+                                               Text="{Binding DueAt, Converter={StaticResource DueTimeToText}}"
+                                               Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}}"
+                                               Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
+                                    <ui:Button Grid.Column="3" Appearance="Transparent"
+                                               Icon="{ui:SymbolIcon Dismiss24}" Width="32" Height="32"
+                                               Command="{Binding DataContext.DeleteTaskCommand,
+                                                   RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                <TextBlock Grid.Row="0" Text="待办" FontSize="12" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" Margin="0,0,0,4"/>
-                <ListView Grid.Row="1" ItemsSource="{Binding OpenTasks}"
-                          Background="Transparent" BorderThickness="0"
-                          SelectionMode="Single" x:Name="OpenTasksList"
-                          AllowDrop="True" Drop="OpenTasks_Drop" DragOver="OpenTasks_DragOver"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.CanContentScroll="False">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0,2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0" IsChecked="{Binding Completed}"
-                                          Command="{Binding DataContext.ToggleTaskCommand,
-                                              RelativeSource={RelativeSource AncestorType=ListView}}"
-                                          CommandParameter="{Binding}"
-                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBox Grid.Column="1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="Transparent" BorderThickness="0"
-                                         VerticalContentAlignment="Center"
-                                         LostFocus="TaskText_LostFocus"
-                                         Tag="{Binding Id}"/>
-                                <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="4,0"
-                                           Cursor="Hand" MouseLeftButtonDown="DueText_Click"
-                                           Tag="{Binding}"
-                                           Text="{Binding DueAt, Converter={StaticResource DueTimeToText}}"
-                                           Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}}"
-                                           Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
-                                <ui:Button Grid.Column="3" Appearance="Transparent"
-                                           Icon="{ui:SymbolIcon Dismiss24}" Width="32" Height="32"
-                                           Command="{Binding DataContext.DeleteTaskCommand,
-                                               RelativeSource={RelativeSource AncestorType=ListView}}"
-                                           CommandParameter="{Binding}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Padding" Value="4"/>
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{ui:ThemeResource ControlFillColorDefaultBrush}"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,4"
+                                MouseLeftButtonDown="ToggleCompleted_Click" Cursor="Hand">
+                        <TextBlock Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" FontSize="12">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="&#x25B6; 已完成"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ShowCompleted}" Value="True">
+                                            <Setter Property="Text" Value="&#x25BC; 已完成"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding CompletedTasks.Count}" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                                   FontSize="12" Margin="8,0,0,0"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,4"
-                            MouseLeftButtonDown="ToggleCompleted_Click" Cursor="Hand">
-                    <TextBlock Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" FontSize="12">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Text" Value="&#x25B6; 已完成"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ShowCompleted}" Value="True">
-                                        <Setter Property="Text" Value="&#x25BC; 已完成"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Text="{Binding CompletedTasks.Count}" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
-                               FontSize="12" Margin="8,0,0,0"/>
+                    <ItemsControl ItemsSource="{Binding CompletedTasks}"
+                                  Visibility="{Binding ShowCompleted, Converter={StaticResource BoolToVis}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2" Opacity="0.6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding Completed}"
+                                              Command="{Binding DataContext.ToggleTaskCommand,
+                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                              CommandParameter="{Binding}"
+                                              VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Text}"
+                                               TextDecorations="Strikethrough"
+                                               Foreground="#9399B2"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="4,0"
+                                               Text="{Binding DueAt, Converter={StaticResource DueTimeToText}, ConverterParameter=completed}"
+                                               Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}, ConverterParameter=completed}"
+                                               Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
+                                    <ui:Button Grid.Column="3" Appearance="Transparent"
+                                               Icon="{ui:SymbolIcon Dismiss24}" Width="32" Height="32"
+                                               Command="{Binding DataContext.DeleteTaskCommand,
+                                                   RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
-
-                <ListView Grid.Row="3" ItemsSource="{Binding CompletedTasks}"
-                          Background="Transparent" BorderThickness="0"
-                          Visibility="{Binding ShowCompleted, Converter={StaticResource BoolToVis}}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.CanContentScroll="False">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0,2" Opacity="0.6">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0" IsChecked="{Binding Completed}"
-                                          Command="{Binding DataContext.ToggleTaskCommand,
-                                              RelativeSource={RelativeSource AncestorType=ListView}}"
-                                          CommandParameter="{Binding}"
-                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Text}"
-                                           TextDecorations="Strikethrough"
-                                           Foreground="#9399B2"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="4,0"
-                                           Text="{Binding DueAt, Converter={StaticResource DueTimeToText}, ConverterParameter=completed}"
-                                           Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}, ConverterParameter=completed}"
-                                           Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
-                                <ui:Button Grid.Column="3" Appearance="Transparent"
-                                           Icon="{ui:SymbolIcon Dismiss24}" Width="32" Height="32"
-                                           Command="{Binding DataContext.DeleteTaskCommand,
-                                               RelativeSource={RelativeSource AncestorType=ListView}}"
-                                           CommandParameter="{Binding}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Padding" Value="4"/>
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-            </Grid>
+            </ScrollViewer>
 
             <!-- Bottom bar -->
             <Grid Grid.Row="4" Margin="12,4,12,12">
