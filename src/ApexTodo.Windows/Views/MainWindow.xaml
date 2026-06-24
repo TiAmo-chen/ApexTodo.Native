@@ -76,19 +76,19 @@
             <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="12,4,12,0">
                 <TextBlock Text="截止:" VerticalAlignment="Center" FontSize="12"
                            Foreground="#6C7086" Margin="0,0,8,0"/>
-                <Button Content="1小时" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                <Button x:Name="Chip1h" Content="1小时" Margin="0,0,4,0" Padding="8,2" FontSize="11"
                         Click="DueChip_Click" Tag="1小时"
                         Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
-                <Button Content="1天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                <Button x:Name="Chip1d" Content="1天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
                         Click="DueChip_Click" Tag="1天"
                         Background="#89B4FA" Foreground="#1E1E2E" BorderThickness="0"/>
-                <Button Content="3天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                <Button x:Name="Chip3d" Content="3天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
                         Click="DueChip_Click" Tag="3天"
                         Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
-                <Button Content="5天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                <Button x:Name="Chip5d" Content="5天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
                         Click="DueChip_Click" Tag="5天"
                         Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
-                <Button Content="1个月" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                <Button x:Name="Chip1m" Content="1个月" Margin="0,0,4,0" Padding="8,2" FontSize="11"
                         Click="DueChip_Click" Tag="1个月"
                         Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
             </StackPanel>

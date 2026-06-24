@@ -156,7 +156,45 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
     private void DueChip_Click(object sender, RoutedEventArgs e)
     {
         if (sender is System.Windows.Controls.Button btn && btn.Tag is string option)
+        {
             _vm.SelectDueOptionCommand.Execute(option);
+            UpdateChipStyles(option);
+        }
+    }
+
+    private void UpdateChipStyles(string selected)
+    {
+        var selectedBg = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(0x89, 0xB4, 0xFA));
+        var normalBg = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(0x31, 0x32, 0x44));
+        var selectedFg = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(0x1E, 0x1E, 0x2E));
+        var normalFg = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(0xCD, 0xD6, 0xF4));
+        var normalBorder = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(0x45, 0x47, 0x5A));
+
+        foreach (var (chip, tag) in new[]
+        {
+            (Chip1h, "1小时"), (Chip1d, "1天"), (Chip3d, "3天"),
+            (Chip5d, "5天"), (Chip1m, "1个月")
+        })
+        {
+            if (tag == selected)
+            {
+                chip.Background = selectedBg;
+                chip.Foreground = selectedFg;
+                chip.BorderThickness = new Thickness(0);
+            }
+            else
+            {
+                chip.Background = normalBg;
+                chip.Foreground = normalFg;
+                chip.BorderBrush = normalBorder;
+                chip.BorderThickness = new Thickness(1);
+            }
+        }
     }
 
     private void DueText_Click(object sender, RoutedEventArgs e)
