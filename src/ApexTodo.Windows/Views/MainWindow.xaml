@@ -291,6 +291,15 @@
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
+                        <TextBlock Text="主题" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <ui:Button x:Name="ThemeDarkBtn" Content="深色" Padding="12,4" Margin="0,0,4,0"
+                                       Click="ThemeDark_Click"/>
+                            <ui:Button x:Name="ThemeLightBtn" Content="浅色" Padding="12,4" Margin="0,0,4,0"
+                                       Click="ThemeLight_Click"/>
+                            <ui:Button x:Name="ThemeSystemBtn" Content="跟随系统" Padding="12,4"
+                                       Click="ThemeSystem_Click"/>
+                        </StackPanel>
                         <CheckBox Content="窗口置顶" IsChecked="{Binding Settings.AlwaysOnTop}"
                                   Checked="AlwaysOnTop_Changed" Unchecked="AlwaysOnTop_Changed"
                                   Margin="0,0,0,8"/>

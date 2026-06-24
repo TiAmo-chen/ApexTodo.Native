@@ -5,6 +5,7 @@ using ApexTodo.Core.Models;
 using ApexTodo.Windows.Services;
 using ApexTodo.Windows.ViewModels;
 using Wpf.Ui;
+using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace ApexTodo.Windows.Views;
@@ -32,6 +33,7 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         Height = s.WindowHeight;
         Topmost = s.AlwaysOnTop;
         Opacity = s.WindowOpacity;
+        ApplyTheme(s.Theme);
         UpdatePinButton();
     }
 
@@ -84,6 +86,45 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
             PinBtn.ToolTip = "点击置顶";
         }
     }
+
+    private void ApplyTheme(string theme)
+    {
+        switch (theme)
+        {
+            case "Dark":
+                ApplicationThemeManager.Apply(ApplicationTheme.Dark);
+                break;
+            case "Light":
+                ApplicationThemeManager.Apply(ApplicationTheme.Light);
+                break;
+            case "System":
+                ApplicationThemeManager.Apply(ApplicationTheme.Dark, Wpf.Ui.Controls.WindowBackdropType.Mica);
+                // 跟随系统：WPF UI 会自动检测系统主题
+                break;
+        }
+        UpdateThemeButtons(theme);
+        _vm.Settings.Theme = theme;
+    }
+
+    private void UpdateThemeButtons(string selected)
+    {
+        // 重置所有按钮样式
+        ThemeDarkBtn.Appearance = ControlAppearance.Secondary;
+        ThemeLightBtn.Appearance = ControlAppearance.Secondary;
+        ThemeSystemBtn.Appearance = ControlAppearance.Secondary;
+
+        // 高亮选中的按钮
+        switch (selected)
+        {
+            case "Dark": ThemeDarkBtn.Appearance = ControlAppearance.Primary; break;
+            case "Light": ThemeLightBtn.Appearance = ControlAppearance.Primary; break;
+            case "System": ThemeSystemBtn.Appearance = ControlAppearance.Primary; break;
+        }
+    }
+
+    private void ThemeDark_Click(object sender, RoutedEventArgs e) => ApplyTheme("Dark");
+    private void ThemeLight_Click(object sender, RoutedEventArgs e) => ApplyTheme("Light");
+    private void ThemeSystem_Click(object sender, RoutedEventArgs e) => ApplyTheme("System");
 
     private void AlwaysOnTop_Changed(object sender, RoutedEventArgs e)
     {

@@ -9,6 +9,7 @@ public class AppSettings
     public bool DesktopLockPosition { get; set; }
     public bool DesktopMouseThrough { get; set; }
     public bool LaunchAtStartup { get; set; }
+    public string Theme { get; set; } = "Dark";
     public double WindowOpacity { get; set; } = 1.0;
     public double WindowLeft { get; set; } = 100;
     public double WindowTop { get; set; } = 100;
