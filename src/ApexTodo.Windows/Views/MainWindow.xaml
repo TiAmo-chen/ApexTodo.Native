@@ -302,6 +302,11 @@
                         <ui:TextBox Text="{Binding Settings.WebDav.RemotePath}" Margin="0,0,0,8"/>
                         <TextBlock Text="同步间隔(分钟)" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,0,0,4"/>
                         <ui:TextBox Text="{Binding Settings.WebDav.IntervalMinutes}" Margin="0,0,0,8"/>
+
+                        <Separator Margin="0,8"/>
+                        <TextBlock Text="{Binding Settings.TodoDbPath, StringFormat='数据文件: {0}'}"
+                                   FontSize="11" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                                   TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
 
