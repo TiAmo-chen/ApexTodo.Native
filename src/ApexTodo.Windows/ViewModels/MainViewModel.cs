@@ -63,9 +63,7 @@ public partial class MainViewModel : ObservableObject
     {
         try
         {
-            var dbPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "ApexTodo", "todo.db");
+            var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "todo.db");
 
             _db = new DatabaseContext(dbPath);
             _todoRepo = new TodoRepository(_db);
@@ -99,9 +97,7 @@ public partial class MainViewModel : ObservableObject
         catch (Exception ex)
         {
             _settings = new AppSettings();
-            _db = new DatabaseContext(Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "ApexTodo", "todo.db"));
+            _db = new DatabaseContext(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "todo.db"));
             _todoRepo = new TodoRepository(_db);
             _settingsService = new SettingsService(_db);
             _syncService = new SyncService("", () => Settings);
