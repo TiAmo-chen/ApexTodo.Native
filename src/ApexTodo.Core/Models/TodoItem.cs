@@ -7,5 +7,6 @@ public class TodoItem
     public bool Completed { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime? CompletedAt { get; set; }
+    public DateTime? DueAt { get; set; }
     public int SortOrder { get; set; }
 }

@@ -37,6 +37,28 @@ public class DatabaseContext : IDisposable
             );
             """;
         cmd.ExecuteNonQuery();
+
+        // Migration: add due_at column if not exists
+        using var checkCmd = connection.CreateCommand();
+        checkCmd.CommandText = "PRAGMA table_info(todos)";
+        using var reader = checkCmd.ExecuteReader();
+        bool hasDueAt = false;
+        while (reader.Read())
+        {
+            if (reader.GetString(1) == "due_at")
+            {
+                hasDueAt = true;
+                break;
+            }
+        }
+        reader.Close();
+
+        if (!hasDueAt)
+        {
+            using var alterCmd = connection.CreateCommand();
+            alterCmd.CommandText = "ALTER TABLE todos ADD COLUMN due_at TEXT";
+            alterCmd.ExecuteNonQuery();
+        }
     }
 
     public SqliteConnection CreateConnection()

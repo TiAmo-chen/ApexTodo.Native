@@ -20,7 +20,7 @@ public class TodoRepository
         return conn.Query("""
             SELECT id AS Id, text AS Text, completed AS Completed,
                    created_at AS CreatedAt, completed_at AS CompletedAt,
-                   sort_order AS SortOrder
+                   due_at AS DueAt, sort_order AS SortOrder
             FROM todos
             ORDER BY completed ASC, sort_order ASC, created_at DESC
             """).Select(r => new TodoItem
@@ -30,16 +30,18 @@ public class TodoRepository
             Completed = (long)r.Completed == 1,
             CreatedAt = DateTime.Parse((string)r.CreatedAt),
             CompletedAt = r.CompletedAt != null ? DateTime.Parse((string)r.CompletedAt) : null,
+            DueAt = r.DueAt != null ? DateTime.Parse((string)r.DueAt) : null,
             SortOrder = (int)(long)r.SortOrder
         }).ToList();
     }
 
-    public TodoItem Add(string text)
+    public TodoItem Add(string text, DateTime? dueAt = null)
     {
         var item = new TodoItem
         {
             Id = Guid.NewGuid().ToString(),
             Text = text,
+            DueAt = dueAt,
             CreatedAt = DateTime.Now,
             SortOrder = GetNextSortOrder()
         };
@@ -47,8 +49,8 @@ public class TodoRepository
         using var conn = _db.CreateConnection();
         conn.Open();
         conn.Execute("""
-            INSERT INTO todos (id, text, completed, created_at, sort_order)
-            VALUES (@Id, @Text, 0, @CreatedAt, @SortOrder)
+            INSERT INTO todos (id, text, completed, created_at, due_at, sort_order)
+            VALUES (@Id, @Text, 0, @CreatedAt, @DueAt, @SortOrder)
             """, item);
 
         return item;
@@ -71,6 +73,14 @@ public class TodoRepository
         using var conn = _db.CreateConnection();
         conn.Open();
         conn.Execute("DELETE FROM todos WHERE id = @Id", new { Id = id });
+    }
+
+    public void UpdateDueAt(string id, DateTime? dueAt)
+    {
+        using var conn = _db.CreateConnection();
+        conn.Open();
+        conn.Execute("UPDATE todos SET due_at = @DueAt WHERE id = @Id",
+            new { Id = id, DueAt = dueAt?.ToString("o") });
     }
 
     public void UpdateText(string id, string text)
