@@ -32,20 +32,30 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Title Bar -->
-            <ui:TitleBar Grid.Row="0" Title="ApexTodo" ShowMaximize="False">
-                <ui:TitleBar.Header>
-                    <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
-                        <ui:Button x:Name="PinBtn" Appearance="Transparent"
-                                   Icon="{ui:SymbolIcon Pin24}"
-                                   Click="PinButton_Click" ToolTip="点击置顶"/>
-                    </StackPanel>
-                </ui:TitleBar.Header>
-            </ui:TitleBar>
+            <Grid Grid.Row="0" Height="32" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid.Background>
+                    <SolidColorBrush Color="{ui:ThemeResource LayerFillColorDefault}" Opacity="0.8"/>
+                </Grid.Background>
+                <TextBlock Text="ApexTodo" VerticalAlignment="Center" Margin="12,0,0,0"
+                           FontSize="12" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <ui:Button x:Name="PinBtn" Appearance="Transparent"
+                               Icon="{ui:SymbolIcon Pin24}" Width="46" Height="32"
+                               Click="PinButton_Click" ToolTip="点击置顶"/>
+                    <ui:Button Appearance="Transparent"
+                               Icon="{ui:SymbolIcon Subtract24}" Width="46" Height="32"
+                               Click="MinimizeButton_Click"/>
+                    <ui:Button Appearance="Transparent"
+                               Icon="{ui:SymbolIcon Dismiss24}" Width="46" Height="32"
+                               Click="CloseButton_Click"/>
+                </StackPanel>
+            </Grid>
 
             <!-- Task input -->
             <Grid Grid.Row="1" Margin="12,8,12,0">
@@ -63,7 +73,7 @@
             </Grid>
 
             <!-- Due date quick options -->
-            <StackPanel Orientation="Horizontal" Margin="12,4,12,0">
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="12,4,12,0">
                 <TextBlock Text="截止:" VerticalAlignment="Center" FontSize="12"
                            Foreground="#6C7086" Margin="0,0,8,0"/>
                 <Button Content="1小时" Margin="0,0,4,0" Padding="8,2" FontSize="11"
@@ -84,7 +94,7 @@
             </StackPanel>
 
             <!-- Task list -->
-            <Grid Grid.Row="2" Margin="12,4">
+            <Grid Grid.Row="3" Margin="12,4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -205,7 +215,7 @@
             </Grid>
 
             <!-- Bottom bar -->
-            <Grid Grid.Row="3" Margin="12,4,12,12">
+            <Grid Grid.Row="4" Margin="12,4,12,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>

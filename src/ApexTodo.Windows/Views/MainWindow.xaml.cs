@@ -100,6 +100,20 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         Opacity = e.NewValue;
     }
 
+    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2)
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        else
+            DragMove();
+    }
+
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        => WindowState = WindowState.Minimized;
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+        => Close();
+
     private void InputBox_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
