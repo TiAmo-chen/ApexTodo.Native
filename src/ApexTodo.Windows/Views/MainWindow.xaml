@@ -9,6 +9,8 @@
     <Window.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
         <converters:NullToVisibilityConverter x:Key="NullToVis"/>
+        <converters:DueTimeToTextConverter x:Key="DueTimeToText"/>
+        <converters:DueTimeToColorConverter x:Key="DueTimeToColor"/>
     </Window.Resources>
     <Border CornerRadius="8" BorderBrush="#45475A" BorderThickness="1" Background="#1E1E2E">
         <Grid>
@@ -56,6 +58,27 @@
                         Padding="12,6"/>
             </Grid>
 
+            <!-- Due date quick options -->
+            <StackPanel Orientation="Horizontal" Margin="12,4,12,0">
+                <TextBlock Text="截止:" VerticalAlignment="Center" FontSize="12"
+                           Foreground="#6C7086" Margin="0,0,8,0"/>
+                <Button Content="1小时" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                        Click="DueChip_Click" Tag="1小时"
+                        Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                <Button Content="1天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                        Click="DueChip_Click" Tag="1天"
+                        Background="#89B4FA" Foreground="#1E1E2E" BorderThickness="0"/>
+                <Button Content="3天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                        Click="DueChip_Click" Tag="3天"
+                        Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                <Button Content="5天" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                        Click="DueChip_Click" Tag="5天"
+                        Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                <Button Content="1个月" Margin="0,0,4,0" Padding="8,2" FontSize="11"
+                        Click="DueChip_Click" Tag="1个月"
+                        Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+            </StackPanel>
+
             <!-- Task list -->
             <Grid Grid.Row="2" Margin="12,0">
                 <Grid.RowDefinitions>
@@ -78,6 +101,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" IsChecked="{Binding Completed}"
                                           Command="{Binding DataContext.ToggleTaskCommand,
@@ -89,7 +113,13 @@
                                          Foreground="#CDD6F4" VerticalContentAlignment="Center"
                                          LostFocus="TaskText_LostFocus"
                                          Tag="{Binding Id}"/>
-                                <Button Grid.Column="2" Content="&#x2715;" Width="24" Height="24"
+                                <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="4,0"
+                                           Cursor="Hand" MouseLeftButtonDown="DueText_Click"
+                                           Tag="{Binding}"
+                                           Text="{Binding DueAt, Converter={StaticResource DueTimeToText}}"
+                                           Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}}"
+                                           Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
+                                <Button Grid.Column="3" Content="&#x2715;" Width="24" Height="24"
                                         FontSize="10" Background="Transparent" BorderThickness="0"
                                         Foreground="#6C7086"
                                         Command="{Binding DataContext.DeleteTaskCommand,
@@ -141,6 +171,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" IsChecked="{Binding Completed}"
                                           Command="{Binding DataContext.ToggleTaskCommand,
@@ -150,7 +181,11 @@
                                 <TextBlock Grid.Column="1" Text="{Binding Text}"
                                            Foreground="#6C7086" TextDecorations="Strikethrough"
                                            VerticalAlignment="Center"/>
-                                <Button Grid.Column="2" Content="&#x2715;" Width="24" Height="24"
+                                <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="4,0"
+                                           Text="{Binding DueAt, Converter={StaticResource DueTimeToText}, ConverterParameter=completed}"
+                                           Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}, ConverterParameter=completed}"
+                                           Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
+                                <Button Grid.Column="3" Content="&#x2715;" Width="24" Height="24"
                                         FontSize="10" Background="Transparent" BorderThickness="0"
                                         Foreground="#6C7086"
                                         Command="{Binding DataContext.DeleteTaskCommand,
@@ -234,6 +269,43 @@
                         <Button Content="保存" Command="{Binding SaveSettingsCommand}" Margin="0,0,8,0"
                                 Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1" Padding="12,6"/>
                         <Button Content="取消" Click="CancelSettings_Click"
+                                Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1" Padding="12,6"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Due date flyout backdrop -->
+            <Border Background="#66000000"
+                    Visibility="{Binding ShowDueFlyout, Converter={StaticResource BoolToVis}}"
+                    MouseLeftButtonDown="CloseDueFlyout_Click"/>
+
+            <!-- Due date flyout -->
+            <Border Margin="40,100,40,100" Padding="0" CornerRadius="6"
+                    Background="#313244" BorderBrush="#45475A" BorderThickness="1"
+                    Visibility="{Binding ShowDueFlyout, Converter={StaticResource BoolToVis}}">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="修改截止时间" FontSize="14" FontWeight="SemiBold" Foreground="#CDD6F4" Margin="0,0,0,12"/>
+                    <WrapPanel Grid.Row="1" Margin="0,0,0,12">
+                        <Button Content="1小时" Margin="0,0,4,4" Padding="8,4" Click="FlyoutDueChip_Click" Tag="1小时"
+                                Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                        <Button Content="1天" Margin="0,0,4,4" Padding="8,4" Click="FlyoutDueChip_Click" Tag="1天"
+                                Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                        <Button Content="3天" Margin="0,0,4,4" Padding="8,4" Click="FlyoutDueChip_Click" Tag="3天"
+                                Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                        <Button Content="5天" Margin="0,0,4,4" Padding="8,4" Click="FlyoutDueChip_Click" Tag="5天"
+                                Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                        <Button Content="1个月" Margin="0,0,4,4" Padding="8,4" Click="FlyoutDueChip_Click" Tag="1个月"
+                                Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1"/>
+                    </WrapPanel>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="清除" Click="ClearDue_Click" Margin="0,0,8,0"
+                                Background="#F38BA8" Foreground="#1E1E2E" BorderThickness="0" Padding="12,6"/>
+                        <Button Content="关闭" Click="CloseDueFlyout_Click"
                                 Background="#313244" Foreground="#CDD6F4" BorderBrush="#45475A" BorderThickness="1" Padding="12,6"/>
                     </StackPanel>
                 </Grid>

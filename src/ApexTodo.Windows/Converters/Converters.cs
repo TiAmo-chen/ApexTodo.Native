@@ -34,7 +34,7 @@ public class DueTimeToTextConverter : IValueConverter
         if (value is not DateTime dueAt)
             return string.Empty;
 
-        var isCompleted = parameter is bool b && b;
+        var isCompleted = parameter is string s && s == "completed";
 
         if (isCompleted)
             return $"截止 {dueAt:MM-dd}";
@@ -71,7 +71,7 @@ public class DueTimeToColorConverter : IValueConverter
         if (value is not DateTime dueAt)
             return Brushes.Transparent;
 
-        var isCompleted = parameter is bool b && b;
+        var isCompleted = parameter is string s && s == "completed";
         if (isCompleted)
             return new SolidColorBrush(Color.FromRgb(0x6C, 0x70, 0x86));
 

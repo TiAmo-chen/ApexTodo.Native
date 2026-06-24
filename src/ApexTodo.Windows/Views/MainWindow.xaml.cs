@@ -152,4 +152,35 @@ public partial class MainWindow : Window
             _vm.ReorderTasks(orderedIds);
         }
     }
+
+    private void DueChip_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.Button btn && btn.Tag is string option)
+            _vm.SelectDueOptionCommand.Execute(option);
+    }
+
+    private void DueText_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBlock tb && tb.Tag is TodoItem item)
+            _vm.OpenDueFlyoutCommand.Execute(item);
+    }
+
+    private void FlyoutDueChip_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.Button btn && btn.Tag is string option)
+        {
+            _vm.SelectedDueOption = option;
+            _vm.UpdateDueAtCommand.Execute(_vm.FlyoutTarget);
+        }
+    }
+
+    private void ClearDue_Click(object sender, RoutedEventArgs e)
+    {
+        _vm.ClearDueAtCommand.Execute(_vm.FlyoutTarget);
+    }
+
+    private void CloseDueFlyout_Click(object sender, RoutedEventArgs e)
+    {
+        _vm.ShowDueFlyout = false;
+    }
 }

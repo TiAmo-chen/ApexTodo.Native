@@ -273,7 +273,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ShowDueFlyoutCommand(TodoItem? item)
+    private void OpenDueFlyout(TodoItem? item)
     {
         FlyoutTarget = item;
         ShowDueFlyout = true;
