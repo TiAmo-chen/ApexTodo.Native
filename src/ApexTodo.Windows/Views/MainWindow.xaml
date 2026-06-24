@@ -133,7 +133,7 @@
                                            Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}}"
                                            Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
                                 <ui:Button Grid.Column="3" Appearance="Transparent"
-                                           Icon="{ui:SymbolIcon Dismiss24}" Width="28" Height="28"
+                                           Icon="{ui:SymbolIcon Dismiss24}" Width="32" Height="32"
                                            Command="{Binding DataContext.DeleteTaskCommand,
                                                RelativeSource={RelativeSource AncestorType=ListView}}"
                                            CommandParameter="{Binding}"/>
@@ -191,13 +191,14 @@
                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <TextBlock Grid.Column="1" Text="{Binding Text}"
                                            TextDecorations="Strikethrough"
+                                           Foreground="#9399B2"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="4,0"
                                            Text="{Binding DueAt, Converter={StaticResource DueTimeToText}, ConverterParameter=completed}"
                                            Foreground="{Binding DueAt, Converter={StaticResource DueTimeToColor}, ConverterParameter=completed}"
                                            Visibility="{Binding DueAt, Converter={StaticResource NullToVis}}"/>
                                 <ui:Button Grid.Column="3" Appearance="Transparent"
-                                           Icon="{ui:SymbolIcon Dismiss24}" Width="28" Height="28"
+                                           Icon="{ui:SymbolIcon Dismiss24}" Width="32" Height="32"
                                            Command="{Binding DataContext.DeleteTaskCommand,
                                                RelativeSource={RelativeSource AncestorType=ListView}}"
                                            CommandParameter="{Binding}"/>
