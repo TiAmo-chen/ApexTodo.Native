@@ -38,6 +38,24 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _syncMessage = string.Empty;
 
+    [ObservableProperty]
+    private string _selectedDueOption = "1天";
+
+    [ObservableProperty]
+    private TodoItem? _flyoutTarget;
+
+    [ObservableProperty]
+    private bool _showDueFlyout;
+
+    public static readonly Dictionary<string, TimeSpan> DueOptions = new()
+    {
+        ["1小时"] = TimeSpan.FromHours(1),
+        ["1天"] = TimeSpan.FromDays(1),
+        ["3天"] = TimeSpan.FromDays(3),
+        ["5天"] = TimeSpan.FromDays(5),
+        ["1个月"] = TimeSpan.FromDays(30),
+    };
+
     public ObservableCollection<TodoItem> OpenTasks { get; } = new();
     public ObservableCollection<TodoItem> CompletedTasks { get; } = new();
 
@@ -70,6 +88,11 @@ public partial class MainViewModel : ObservableObject
 
             RefreshTasks();
 
+            // 每分钟刷新截止时间显示
+            var refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+            refreshTimer.Tick += (_, _) => OnPropertyChanged(nameof(OpenTasks));
+            refreshTimer.Start();
+
             if (Settings.WebDav.Enabled)
                 _syncService.StartAutoSync(Settings.WebDav.IntervalMinutes);
         }
@@ -94,7 +117,8 @@ public partial class MainViewModel : ObservableObject
             var text = InputText.Trim();
             if (string.IsNullOrEmpty(text)) return;
 
-            _todoRepo.Add(text);
+            var dueAt = DateTime.Now + DueOptions[SelectedDueOption];
+            _todoRepo.Add(text, dueAt);
             InputText = string.Empty;
             RefreshTasks();
             ShowToastMessage("任务已添加");
@@ -205,6 +229,54 @@ public partial class MainViewModel : ObservableObject
     private void ToggleSettings()
     {
         ShowSettings = !ShowSettings;
+    }
+
+    [RelayCommand]
+    private void SelectDueOption(string option)
+    {
+        SelectedDueOption = option;
+    }
+
+    [RelayCommand]
+    private void UpdateDueAt(TodoItem? item)
+    {
+        if (item == null || FlyoutTarget == null) return;
+        try
+        {
+            var dueAt = DateTime.Now + DueOptions[SelectedDueOption];
+            _todoRepo.UpdateDueAt(item.Id, dueAt);
+            ShowDueFlyout = false;
+            FlyoutTarget = null;
+            RefreshTasks();
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"更新失败: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ClearDueAt(TodoItem? item)
+    {
+        if (item == null) return;
+        try
+        {
+            _todoRepo.UpdateDueAt(item.Id, null);
+            ShowDueFlyout = false;
+            FlyoutTarget = null;
+            RefreshTasks();
+        }
+        catch (Exception ex)
+        {
+            ShowToastMessage($"清除失败: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ShowDueFlyoutCommand(TodoItem? item)
+    {
+        FlyoutTarget = item;
+        ShowDueFlyout = true;
     }
 
     public void ReorderTasks(List<string> orderedIds)
